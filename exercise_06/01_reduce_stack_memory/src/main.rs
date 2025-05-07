@@ -4,6 +4,8 @@ use std::fmt;
 use std::fs::File;
 use std::io::{self, Read};
 
+use anyhow::Result;
+
 #[derive(Debug, Deserialize)]
 struct DatabaseConfig {
     r#type: String,
@@ -27,37 +29,37 @@ struct Config {
     settings: Option<Settings>,
 }
 
-#[derive(Debug)]
-enum ConfigError {
-    Io(io::Error),
-    Yaml(serde_yaml::Error),
-}
-
-impl fmt::Display for ConfigError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            ConfigError::Io(err) => write!(f, "IO error: {}", err),
-            ConfigError::Yaml(err) => write!(f, "YAML error: {}", err),
-        }
-    }
-}
-
-impl Error for ConfigError {}
-
-impl From<io::Error> for ConfigError {
-    fn from(err: io::Error) -> ConfigError {
-        ConfigError::Io(err)
-    }
-}
-
-impl From<serde_yaml::Error> for ConfigError {
-    fn from(err: serde_yaml::Error) -> ConfigError {
-        ConfigError::Yaml(err)
-    }
-}
+// #[derive(Debug)]
+// enum ConfigError {
+//     Io(io::Error),
+//     Yaml(serde_yaml::Error),
+// }
+//
+// impl fmt::Display for ConfigError {
+//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         match self {
+//             ConfigError::Io(err) => write!(f, "IO error: {}", err),
+//             ConfigError::Yaml(err) => write!(f, "YAML error: {}", err),
+//         }
+//     }
+// }
+//
+// impl Error for ConfigError {}
+//
+// impl From<io::Error> for ConfigError {
+//     fn from(err: io::Error) -> ConfigError {
+//         ConfigError::Io(err)
+//     }
+// }
+//
+// impl From<serde_yaml::Error> for ConfigError {
+//     fn from(err: serde_yaml::Error) -> ConfigError {
+//         ConfigError::Yaml(err)
+//     }
+// }
 
 impl Config {
-    fn from_file(file_path: &str) -> Result<Self, ConfigError> {
+    fn from_file(file_path: &str) -> Result<Self> {
         let mut file = File::open(file_path)?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;

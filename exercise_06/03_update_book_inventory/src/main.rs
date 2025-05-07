@@ -1,6 +1,5 @@
 use std::{
-    fmt::{self, Display},
-    rc::Rc,
+    cell::RefCell, fmt::{self, Display}, rc::Rc
 };
 
 /* do not modify this struct */
@@ -39,12 +38,12 @@ impl Display for Author {
 #[derive(Debug)]
 struct Book {
     title: String,
-    author: Rc<Author>,
+    author: Rc<RefCell<Author>>,
 }
 
 /* you may modify this impl block */
 impl Book {
-    fn new(title: &str, author: Rc<Author>) -> Self {
+    fn new(title: &str, author: Rc<RefCell<Author>>) -> Self {
         Book {
             title: title.to_string(),
             author,
@@ -55,7 +54,7 @@ impl Book {
 /* you may modify this impl block */
 impl Display for Book {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}, By {}", self.title, self.author)
+        write!(f, "{}, By {}", self.title, self.author.borrow())
     }
 }
 
@@ -82,7 +81,7 @@ impl Library {
         for book in self.books.iter() {
             // `std::ptr::eq` returns true if the two pointers point to
             // the same memory location
-            if std::ptr::eq(&*book.author, author) {
+            if std::ptr::eq(&*book.author.borrow(), author) {
                 books.push(book);
             }
         }
@@ -98,9 +97,9 @@ fn main() {
     let mut library = Library::new();
 
     // the author variables must remain immutable
-    let author_a = Rc::new(Author::new("Author A"));
-    let author_b = Rc::new(Author::new("Author B"));
-    let author_c = Rc::new(Author::new("Author C"));
+    let author_a = Rc::new(RefCell::new(Author::new("Author A")));
+    let author_b = Rc::new(RefCell::new(Author::new("Author B")));
+    let author_c = Rc::new(RefCell::new(Author::new("Author C")));
 
     // the book variables must remain immutable
     let book_1 = Book::new("Book 1", author_a.clone());
@@ -111,10 +110,11 @@ fn main() {
     library.add_book(book_2);
     library.add_book(book_3);
 
-    let authors = vec![author_a, author_b, author_c];
+    let authors = vec![&author_a, &author_b, &author_c];
 
     for author in &authors {
-        match library.get_books_by_author(author) {
+        let author = author.borrow();
+        match library.get_books_by_author(&author) {
             Some(books) => println!("{} books: {:#?}", author, books),
             None => println!("No books found for {}", author),
         }
@@ -125,9 +125,12 @@ fn main() {
     //   other code can be modified
     // - assign the email address "author_a@mybooks.local" to author A
     // - assign the email address "author_b@mybooks.local" to author B
+    author_a.borrow_mut().set_email("author_a@mybooks.local");
+    author_b.borrow_mut().set_email("author_a@mybooks.local");
 
     for author in &authors {
-        match library.get_books_by_author(author) {
+        let author = author.borrow();
+        match library.get_books_by_author(&author) {
             Some(books) => println!("{} books: {:#?}", author, books),
             None => println!("No books found for {}", author),
         }

@@ -1,6 +1,7 @@
 // Note: For this exercise, be sure to review `07_structs` in module 3
 
 use std::fmt::{self, Display};
+use std::rc::Rc;
 
 #[derive(Debug)]
 struct Author {
@@ -24,14 +25,14 @@ impl Display for Author {
 #[derive(Debug)]
 struct Book {
     title: String,
-    author: Author,
+    author: Rc<Author>,
 }
 
 impl Book {
-    fn new(title: &str, author: &str) -> Self {
+    fn new(title: &str, author: Rc<Author>) -> Self {
         Book {
             title: title.to_string(),
-            author: Author::new(author),
+            author//: Author::new(author),
         }
     }
 }
@@ -52,15 +53,15 @@ impl Library {
         Library { books: Vec::new() }
     }
 
-    fn add_book(&mut self, author_name: &str, book_title: &str) {
-        let book = Book::new(book_title, author_name);
+    fn add_book(&mut self, author: Rc<Author>, book_title: &str) {
+        let book = Book::new(book_title, author);
         self.books.push(book);
     }
 
-    fn get_books_by_author(&self, author_name: &str) -> Option<Vec<&Book>> {
+    fn get_books_by_author(&self, author: &Author) -> Option<Vec<&Book>> {
         let mut books = Vec::new();
         for book in self.books.iter() {
-            if book.author.name == author_name {
+            if book.author.name == author.name {
                 books.push(book);
             }
         }
@@ -70,19 +71,24 @@ impl Library {
             None
         }
     }
+
 }
 
 fn main() {
     let mut library = Library::new();
 
-    library.add_book("Author A", "Book 1");
-    library.add_book("Author A", "Book 2");
-    library.add_book("Author B", "Book 3");
+    let author_a = Rc::new(Author::new("Author A"));
+    let author_b = Rc::new(Author::new("Author B"));
 
-    let authors = vec!["Author A", "Author B", "Author C"];
+    library.add_book(author_a.clone(), "Book 1");
+    library.add_book(author_b.clone(), "Book 2");
+    library.add_book(author_b.clone(), "Book 3");
+
+    let authors = vec![author_a, author_b,
+                                        Rc::new(Author::new("Author C"))];
 
     for author in authors {
-        match library.get_books_by_author(author) {
+        match library.get_books_by_author(&author) {
             Some(books) => println!("{} books: {:#?}", author, books),
             None => println!("No books found for {}", author),
         }
