@@ -1,0 +1,13 @@
+database:
+  type: "PostgreSQL"  # Type of the database (e.g., PostgreSQL, MySQL, SQLite)
+  host: "localhost"   # Database server host
+  port: 5432          # Database server port
+  username: "dbuser"  # Username for database authentication
+  password: "dbpassword"  # Password for database authentication
+  name: "mydatabase"  # Name of the database to connect to
+
+# Optional: Additional settings
+settings:
+  pool_size: 10       # Connection pool size
+  timeout: 30         # Connection timeout in seconds
+  sslmode: "require"  # SSL mode (e.g., disable, require, verify-full)
