@@ -38,6 +38,18 @@ impl<'a> CommandLoop<'a> {
             // Self::get_command is like a class method in Python
             let command = Self::get_command();
             match command.as_str() {
+                "remove" => match self.app.remove_car() {
+                    Ok(size) => println!("removed"),
+                    Err(err) => println!("can't remove - {err}"),
+                },
+                "save" => match self.app.save_cars() {
+                    Ok(size) => println!("saved"),
+                    Err(err) => println!("can't save - {err}"),
+                },
+                "load" => match self.app.load_cars() {
+                    Ok(size) => println!("loaded"),
+                    Err(err) => println!("can't load - {err}"),
+                },
                 "add" => match self.app.add_car() {
                     Ok(size) => println!("car added; total {size}"),
                     Err(err) => println!("try again - {err}"),

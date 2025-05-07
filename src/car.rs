@@ -1,7 +1,10 @@
 use std::fmt::Display;
 
-#[derive(Debug)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Car {
+    pub id: usize,
     make: String,
     model: String,
     year: u32,
@@ -10,8 +13,9 @@ pub struct Car {
 }
 
 impl Car {
-    pub fn new (make: &str, model: &str, year: u32, color: &str, price: f64) -> Car {
+    pub fn new (id: usize, make: &str, model: &str, year: u32, color: &str, price: f64) -> Car {
         Car {
+            id,
             make: make.to_string(),
             model: model.to_string(),
             year,
