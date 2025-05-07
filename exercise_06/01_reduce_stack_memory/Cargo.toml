@@ -1,0 +1,9 @@
+[package]
+name = "reduce_stack_memory"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1.0.203", features = ["serde_derive"] }
+serde_yaml = "0.9.34"
+anyhow = "1.0.98"
