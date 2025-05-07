@@ -1,9 +1,12 @@
+use std::fmt::Display;
+
+#[derive(Debug)]
 pub struct Car {
     make: String,
     model: String,
     year: u32,
     color: String,
-    price: f64,
+    pub price: f64,
 }
 
 impl Car {
@@ -17,7 +20,13 @@ impl Car {
         }
     }
 
-    pub fn print(&self) {
-        println!("CAR: {} {}", self.make, self.model);
+    // pub fn print(&self) {
+    //     println!("CAR: {} {}", self.make, self.model);
+    // }
+}
+
+impl Display for Car {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "CAR: {} {} - ${:.2}", self.make, self.model, self.price)
     }
 }

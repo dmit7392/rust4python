@@ -1,6 +1,8 @@
 use std::io::{stdin, stdout, Write, };
 use anyhow::Result;
 
+use std::str::FromStr;
+
 use crate::car::Car;
 
 pub struct CarToolApp {
@@ -9,63 +11,36 @@ pub struct CarToolApp {
 
 impl CarToolApp {
     pub fn new() -> CarToolApp {
-        CarToolApp {cars : vec![]}
+        CarToolApp {cars : vec![
+            Car::new("Honda", "Civic", 2008, "?", 1000.0),
+            Car::new("Toyota", "Tundra", 2008, "?", 2000.0),
+            Car::new("Ford", "Ka", 2008, "?", 100.0),
+        ]}
     }
 
-    pub fn read_string(prompt: &str) -> Result<String> {
+    pub fn console_read<T: FromStr>(prompt: &str) -> Result<T> where <T as FromStr>::Err: std::error::Error + Send + Sync + 'static {
         print!("{prompt} ");
         stdout().flush()?;
         
         let mut str = String::new();
         stdin().read_line(&mut str)?;
     
-        Ok(str.trim().to_string())
+        Ok(str.trim().parse::<T>()?)
     }
     
-    pub fn read_u32(prompt: &str) -> Result<u32> {
-        Ok(loop {
-            print!("{prompt} ");
-            stdout().flush()?;
-            
-            let mut input = String::new();
-            stdin().read_line(&mut input)?;
-            
-            match input.trim().parse::<u32>() {
-                Ok(num) => break num,
-                Err(_) => {
-                    println!("Invalid input. Please enter a number.");
-                    continue;
-                }
-            }
-        })
-    }
-    
-    pub fn num_input(prompt: &str) -> Result<f64> {
-        Ok(loop {
-            print!("{prompt} ");
-            stdout().flush()?;
-            
-            let mut input = String::new();
-            stdin().read_line(&mut input)?;
-            
-            match input.trim().parse::<f64>() {
-                Ok(num) => break num,
-                Err(_) => {
-                    println!("Invalid input. Please enter a number.");
-                    continue;
-                }
-            }
-        })
-    }
-
     pub fn add_car(&mut self) -> Result<usize> {
-        let make = Self::read_string("make?")?;
-        let model = Self::read_string("model?")?;
-        let year = Self::read_u32("year?")?;
-        let color = Self::read_string("color?")?;
-        let price = Self::num_input("price?")?;
-    
-        let car = Car::new(&make, &model, year, &color, price);
+        let make: String = Self::console_read("make?")?;
+        let model: String = Self::console_read("model?")?;
+        let color: String = Self::console_read("color?")?;
+
+        let car = Car::new(
+            &make,
+            &model,
+            Self::console_read("year?")?,
+            &color,
+            Self::console_read("price?")?
+        );
+
         self.cars.push(car);
     
         Ok(self.cars.len())
@@ -73,8 +48,14 @@ impl CarToolApp {
 
     pub fn show_cars(&self) {
         for car in &self.cars {
-            car.print();
+            println!("{}", car);
         }
+
+        let mut totalValue: f64 = std::f64::NAN;
+
+        totalValue = self.cars.iter().map(|car|car.price).sum();
+
+        println!("Cars # {}, Total value: {totalValue}", self.cars.len());
     }
     
     
