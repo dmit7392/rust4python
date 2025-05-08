@@ -1,8 +1,11 @@
 use std::fs::File;
 use std::io::{self, BufRead};
+use std::path::PathBuf;
 
-fn process_file() -> io::Result<()> {
-    let path = "../../data/biology_test1_scores.csv";
+use anyhow::Result;
+
+fn process_file(path: &PathBuf, num: usize) -> io::Result<()> {
+    //let path = "../../data/biology_test1_scores.csv";
 
     let file = File::open(path)?;
     let reader = io::BufReader::new(file);
@@ -27,7 +30,7 @@ fn process_file() -> io::Result<()> {
 
     if count > 0 {
         let average = total_score as f64 / count as f64;
-        println!("Average Biology Test Score: {:.2}", average);
+        println!("Test #{num}: {:.2}", average);
     } else {
         println!("No scores found in the file.");
     }
@@ -35,5 +38,14 @@ fn process_file() -> io::Result<()> {
     Ok(())
 }
 
-fn main() -> io::Result<()> {
+fn main() -> Result<()> {
+    let file_paths = std::fs::read_dir("../data")?;
+
+    for (i, entry) in file_paths.enumerate() {
+        let entry = entry?;
+        let path = entry.path();
+        process_file(&path, i)?;
+    }
+
+    Ok(())
 }
