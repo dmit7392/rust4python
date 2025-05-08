@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::{self, BufRead};
 
-fn main() -> io::Result<()> {
+fn process_file() -> io::Result<()> {
     let path = "../../data/biology_test1_scores.csv";
 
     let file = File::open(path)?;
@@ -35,3 +35,5 @@ fn main() -> io::Result<()> {
     Ok(())
 }
 
+fn main() -> io::Result<()> {
+}
