@@ -1,0 +1,6 @@
+[package]
+name = "calc_avg_test_scores_blocking"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
