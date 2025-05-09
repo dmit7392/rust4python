@@ -7,7 +7,7 @@ use std::thread::{self, JoinHandle};
 
 use anyhow::Result;
 
-fn process_file(path: &PathBuf) -> Result<f64> {
+async fn process_file(path: &PathBuf) -> Result<f64> {
     //let path = "../../data/biology_test1_scores.csv";
 
     let file = File::open(path)?;
@@ -42,42 +42,40 @@ fn process_file(path: &PathBuf) -> Result<f64> {
     )
 }
 
-fn main() -> Result<()> {
+
+#[tokio::main]
+async fn main() -> Result<()> {
 
     let map: HashMap<PathBuf, f64> = HashMap::new();
     let data = Arc::new(Mutex::new(map));
 
     let file_paths = std::fs::read_dir("../data")?;
-    let mut handles = vec![];
 
+    let mut futures = Vec::new();
 
     for (i, entry) in file_paths.enumerate() {
         let path = entry?.path();
         let data = Arc::clone(&data);
-        let handle = thread::spawn(move || {
-            let val_or_err = process_file(&path);
 
-
-            match val_or_err {
-                Ok(val) => {
-                    println!("{path:?} => {val}");
-                },
-                Err(e) => {
-                    println!("{path:?} => no way");                    
-                }
-            }
-
+        futures.push(async move {
+            let result = process_file(&path).await;
+            result
         });
-
-        handles.push(handle);
     }
 
-    for handle in handles {
-        match handle.join() {
-            Ok(_) => {},
-            Err(_) => {},
+    let results = futures::future::join_all(futures).await;
+
+    for res in results {
+        match res {
+            Ok(r) => { 
+                println!("{r}");
+            },
+            Err(r) => {
+                println!("{r}");
+            },
         }
     }
 
     Ok(())
+
 }
